@@ -144,47 +144,24 @@
         .popup.active {
             display: block;
         }
-        .withdraw-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            visibility: hidden;
-            opacity: 0;
-            transition: visibility 0.3s, opacity 0.3s;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-        .withdraw-modal.active {
-            visibility: visible;
-            opacity: 1;
-        }
-        .withdraw-modal-content {
-            background: #333333;
-            padding: 20px;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
-            border: 2px solid #ffd700;
-            color: #ffd700;
-        }
-        .withdraw-modal-content input {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-            background-color: #222;
-            color: #ffd700;
-        }
+        
+        
+        
+        .withdraw-btn button {
+    background-color: #ffd700; /* Green */
+    color: 1a1a1a;
+    padding: 14px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: background 0.3s, transform 0.3s;
+            box-shadow: 0px 5px 15px rgba(255, 215, 0, 0.4);
+}
+
+.withdraw-btn button:hover {
+    background-color: #45a049;
+}
     </style>
 </head>
 <body>
@@ -212,20 +189,19 @@
         <button onclick="closePopup()">Close</button>
     </div>
 
-    <div class="withdraw-modal" id="withdrawModal">
-        <div class="withdraw-modal-content">
-            <h3>Withdraw Balance</h3>
-            <p>Enter your bKash number to withdraw your balance:</p>
-            <input type="text" id="bkashNumber" placeholder="Enter bKash Number">
-            <button onclick="withdrawBalance()">Withdraw</button>
-            <button onclick="closeWithdrawModal()">Cancel</button>
-        </div>
-    </div>
+
+
+
+
+
 
     <div class="bottom-nav">
         <a href="#"><i class="fas fa-home"></i>Home</a>
+        <a href="/withdraw.html" class="withdraw-btn">
+          <button>Withdraw</button>
+        </a>
         <a href="#"><i class="fas fa-share-alt"></i>Share</a>
-        <a href="https://t.me/@AppDeveloper99" target="_blank"><i class="fas fa-user-tie"></i>Developer</a>
+        
     </div>
 
     <script>

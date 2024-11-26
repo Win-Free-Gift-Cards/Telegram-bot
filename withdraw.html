@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Withdraw Page</title>
+    <style>
+        /* Style the dropdown */
+        select {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        /* Style the page */
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f9;
+        }
+
+        .withdraw-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .input-field {
+            margin-bottom: 15px;
+        }
+
+        .input-field input {
+            width: 90%;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .withdraw-info {
+            display: none;
+        }
+
+        .error {
+            color: red;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            padding-top: 100px;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .modal-content button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .modal-content button:hover {
+            background-color: #45a049;
+        }
+
+        /* Loading spinner styles */
+        .spinner {
+            border: 4px solid #f3f3f3; /* Light grey */
+            border-top: 4px solid #3498db; /* Blue */
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 2s linear infinite;
+            margin-left: 10px;
+        }
+
+        /* Spinner animation */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Hide spinner by default */
+        #loading-spinner {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="withdraw-container">
+        <h2>Select Withdrawal Option</h2>
+        <form id="withdrawal-form" action="/submit-withdrawal" method="POST" onsubmit="return validateForm()">
+            <label for="withdraw-option">Choose a withdrawal method:</label><br>
+            <select id="withdraw-option" name="withdraw-option" onchange="showWithdrawFields()">
+                <option value="">Select method</option>
+                <option value="paypal">PayPal</option>
+                <option value="bank-transfer">Bank Transfer</option>
+                <option value="bkash">Bkash</option>
+            </select><br><br>
+
+            <!-- Withdrawal amount input -->
+            <div class="input-field">
+                <label for="withdraw-amount">Enter withdrawal amount (Min $1):</label>
+                <input type="number" id="withdraw-amount" name="withdraw-amount" placeholder="Enter amount" min="1" step="0.01" required>
+            </div>
+
+            <!-- Dynamic withdrawal info form -->
+            <div id="paypal-info" class="withdraw-info">
+                <div class="input-field">
+                    <label for="paypal-email">Enter your PayPal email:</label>
+                    <input type="email" id="paypal-email" name="paypal-email" placeholder="Enter PayPal email">
+                </div>
+            </div>
+
+            <div id="bank-info" class="withdraw-info">
+                <div class="input-field">
+                    <label for="bank-account">Enter your Bank Account Number:</label>
+                    <input type="text" id="bank-account" name="bank-account" placeholder="Enter Bank Account Number">
+                </div>
+            </div>
+
+            <div id="bkash-info" class="withdraw-info">
+                <div class="input-field">
+                    <label for="bkash-number">Enter your Bkash Number:</label>
+                    <input type="text" id="bkash-number" name="bkash-number" placeholder="Enter Bkash Number">
+                </div>
+            </div>
+
+            <div id="error-message" class="error"></div>
+
+            <!-- Withdraw Button -->
+            <button type="submit" id="withdraw-button">
+                Submit Withdrawal
+                <div id="loading-spinner" class="spinner"></div>
+            </button>
+        </form>
+    </div>
+
+    <!-- Modal for withdrawal success -->
+    <div id="successModal" class="modal">
+        <div class="modal-content">
+            <h3>Withdrawal Request Successful</h3>
+            <p>Your withdrawal request has been successfully processed.</p>
+            <button onclick="closeModal()">OK</button>
+        </div>
+    </div>
+
+    <script>
+        function showWithdrawFields() {
+            // Hide all withdrawal info divs
+            document.querySelectorAll('.withdraw-info').forEach(function (div) {
+                div.style.display = 'none';
+            });
+
+            // Show the relevant withdrawal info based on selection
+            const selectedOption = document.getElementById('withdraw-option').value;
+
+            if (selectedOption === 'paypal') {
+                document.getElementById('paypal-info').style.display = 'block';
+            } else if (selectedOption === 'bank-transfer') {
+                document.getElementById('bank-info').style.display = 'block';
+            } else if (selectedOption === 'bkash') {
+                document.getElementById('bkash-info').style.display = 'block';
+            }
+        }
+
+        function validateForm() {
+            const withdrawAmount = parseFloat(document.getElementById('withdraw-amount').value);
+            const errorMessage = document.getElementById('error-message');
+
+            // Check if the withdrawal amount is less than $1
+            if (withdrawAmount < 1) {
+                errorMessage.textContent = "The minimum withdrawal amount is $1.";
+                return false; // Prevent form submission
+            }
+
+            // Clear error message
+            errorMessage.textContent = "";
+
+            // Show loading spinner
+            document.getElementById('loading-spinner').style.display = 'inline-block';
+
+            // Simulate successful form submission (for demo purposes)
+            setTimeout(function() {
+                showSuccessModal();
+                document.getElementById('loading-spinner').style.display = 'none';
+            }, 2000); // Simulate a 2-second delay for form submission
+
+            return false; // Prevent actual form submission for demonstration
+        }
+
+        function showSuccessModal() {
+            // Show the success modal
+            document.getElementById('successModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            // Close the modal
+            document.getElementById('successModal').style.display = 'none';
+            // Optionally, you can redirect to another page or reset the form here
+        }
+    </script>
+</body>
+</html>
