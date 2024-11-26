@@ -216,7 +216,7 @@
         </div>
         <div class="balance-info">
             <p>Points: <span id="userPoints">0</span></p>
-            <p>Balance: $<span id="userBalance">0.00</span></p>
+            <p>Balance: ৳<span id="userBalance">0.00</span></p>
         </div>
     </div>
 
@@ -244,108 +244,138 @@
 
     <div class="modal" id="withdrawModal">
         <div class="modal-content">
-            <h3>Enter Binance TRC20 Wallet Address</h3>
-            <input type="text" id="walletAddress" placeholder="Enter your TRC20 wallet address">
+            <h3>Enter your Bkash Number</h3>
+            <input type="text" id="walletAddress" placeholder="Enter your Bkash Number">
             <button onclick="processWithdrawal()">Withdraw</button>
         </div>
     </div>
 
-    <script>
-            let rewardClicks = 0;
-            let points = 0;
-            let balance = 0;
+  <script>
+  
+  
+  
+ 
+    let rewardClicks = 0;
+    let points = 0;
+    let balance = 0;
 
-            document.addEventListener('DOMContentLoaded', function() {
-                // Check if user data is stored in localStorage
-                if (!localStorage.getItem('userName') || !localStorage.getItem('userNumber')) {
-                    document.getElementById('userModal').classList.add('active');
-                } else {
-                    loadUserInfo();
-                }
-            });
+    document.addEventListener('DOMContentLoaded', function () {
+        // Load user data from localStorage
+        loadUserInfo();
+    });
 
-            function loadUserInfo() {
-                let userName = localStorage.getItem('userName');
-                let userNumber = localStorage.getItem('userNumber');
-                let userPoints = localStorage.getItem('userPoints') || 0;
-                let userBalance = localStorage.getItem('userBalance') || 0;
+    function loadUserInfo() {
+        const userName = localStorage.getItem('userName') || 'Your Name';
+        const userNumber = localStorage.getItem('userNumber') || '000000';
+        points = parseInt(localStorage.getItem('userPoints') || '0');
+        balance = parseFloat(localStorage.getItem('userBalance') || '0.00');
 
-                document.getElementById('userName').textContent = userName;
-                document.getElementById('userNumber').textContent = userNumber;
-                document.getElementById('userPoints').textContent = userPoints;
-                document.getElementById('userBalance').textContent = userBalance;
-            }
+        document.getElementById('userName').textContent = userName;
+        document.getElementById('userNumber').textContent = userNumber;
+        document.getElementById('userPoints').textContent = points;
+        document.getElementById('userBalance').textContent = balance.toFixed(2);
+    }
 
-            function saveUserInfo() {
-                let inputName = document.getElementById('inputName').value;
-                let inputNumber = document.getElementById('inputNumber').value;
+    function saveUserInfo() {
+        const inputName = document.getElementById('inputName').value;
+        const inputNumber = document.getElementById('inputNumber').value;
 
-                if (inputName && inputNumber) {
-                    localStorage.setItem('userName', inputName);
-                    localStorage.setItem('userNumber', inputNumber);
-                    localStorage.setItem('userPoints', 0);
-                    localStorage.setItem('userBalance', 0);
+        if (inputName && inputNumber) {
+            localStorage.setItem('userName', inputName);
+            localStorage.setItem('userNumber', inputNumber);
+            document.getElementById('userModal').classList.remove('active');
+            loadUserInfo();
+        } else {
+            alert("Please fill in both fields.");
+        }
+    }
 
-                    document.getElementById('userModal').classList.remove('active');
-                    loadUserInfo();
-                } else {
-                    alert("Please fill in both fields.");
-                }
-            }
+    function showRewardedAd() {
+        if (typeof show_8563381 === 'function') {
+            show_8563381()
+                .then(() => {
+                    // Task completed
+                    rewardClicks++;
+                    points += 10;
+                    balance += 0.10;
 
-            function showRewardedAd() {
-                rewardClicks++;
-                points += 10; // Simulate rewarding points after each click
-                localStorage.setItem('userPoints', points);
-                localStorage.setItem('userBalance', (points * 0.1).toFixed(2)); // Convert points to balance
-
-                document.getElementById('userPoints').textContent = points;
-                document.getElementById('userBalance').textContent = localStorage.getItem('userBalance');
-
-                // Show withdraw button after 5 clicks
-                if (rewardClicks >= 5) {
-                    document.getElementById('withdrawButton').style.display = 'block';
-                }
-
-                // Redirect to Monetag ad after clicking the reward task button
-                if (typeof show_8563491 === 'function') {
-                    show_8563491().then(() => {
-                        // After the ad is shown, you can proceed to handle rewards (points, balance, etc.)
-                        alert('Ad completed. You have earned your reward!');
-                    }).catch(error => {
-                        console.error('Error showing ad:', error);
-                        alert('Failed to show rewarded ad.');
-                    });
-                } else {
-                    alert('Monetag ad is not available.');
-                }
-            }
-
-            function showWithdrawModal() {
-                document.getElementById('withdrawModal').classList.add('active');
-            }
-
-            function processWithdrawal() {
-                let walletAddress = document.getElementById('walletAddress').value;
-
-                if (walletAddress) {
-                    alert(`Withdrawal request received. Sending to: ${walletAddress}`);
-                    document.getElementById('withdrawModal').classList.remove('active');
-
-                    // Reset points and balance after withdrawal
-                    points = 0;
-                    balance = 0;
                     localStorage.setItem('userPoints', points);
-                    localStorage.setItem('userBalance', balance);
+                    localStorage.setItem('userBalance', balance.toFixed(2));
 
                     document.getElementById('userPoints').textContent = points;
-                    document.getElementById('userBalance').textContent = balance;
+                    document.getElementById('userBalance').textContent = balance.toFixed(2);
 
-                    document.getElementById('withdrawButton').style.display = 'none'; // Hide withdraw button
-                } else {
-                    alert("Please enter a valid wallet address.");
-                }
-            }
+                    // Show success popup
+                    showPopupMessage("Task completed successfully! You've earned $0.10.");
+
+                    // Redirect to home page after 15 seconds
+                    setTimeout(() => {
+                        window.location.href = "/";
+                    }, 15000);
+                })
+                .catch(error => {
+                    alert('Failed to complete task. Please try again.');
+                    console.error('Error showing ad:', error);
+                });
+        } else {
+            alert('Rewarded ad not available.');
+        }
+    }
+
+    function showPopupMessage(message) {
+        const popup = document.createElement('div');
+        popup.style.position = 'fixed';
+        popup.style.top = '50%';
+        popup.style.left = '50%';
+        popup.style.transform = 'translate(-50%, -50%)';
+        popup.style.backgroundColor = '#333333';
+        popup.style.color = '#ffd700';
+        popup.style.padding = '20px';
+        popup.style.borderRadius = '10px';
+        popup.style.textAlign = 'center';
+        popup.style.zIndex = '1000';
+        popup.style.boxShadow = '0px 4px 10px rgba(0, 0, 0, 0.3)';
+        popup.style.border = '2px solid #ffd700';
+
+        popup.textContent = message;
+        document.body.appendChild(popup);
+
+        setTimeout(() => {
+            popup.remove();
+        }, 5000); // Remove popup after 5 seconds
+    }
+
+    function showWithdrawModal() {
+        document.getElementById('withdrawModal').classList.add('active');
+    }
+
+    function processWithdrawal() {
+        const walletAddress = document.getElementById('walletAddress').value;
+
+        if (walletAddress) {
+            alert(`Withdrawal request received. Sending to: ${walletAddress}`);
+            document.getElementById('withdrawModal').classList.remove('active');
+
+            // Reset points and balance after withdrawal
+            points = 0;
+            balance = 0;
+            localStorage.setItem('userPoints', points);
+            localStorage.setItem('userBalance', balance);
+
+            document.getElementById('userPoints').textContent = points;
+            document.getElementById('userBalance').textContent = balance.toFixed(2);
+
+            document.getElementById('withdrawButton').style.display = 'none'; // Hide withdraw button
+        } else {
+            alert("Please enter a valid wallet address.");
+        }
+    }
+
+  
+  
+  
+  
+  
         </script>
         
           
