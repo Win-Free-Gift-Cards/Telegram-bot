@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,13 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reward Task Example</title>
     <!--monetag bot zone id-->
-    
-    
     <script src="https://niphaumeenses.net/vignette.min.js" data-zone="8563381" data-sdk="show_8563381"></script>
-     
-     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-<style>
+    <style>
         body {
             display: flex;
             flex-direction: column;
@@ -186,6 +181,24 @@
         .modal-content button:hover {
             background-color: #e5c100;
         }
+        .withdraw-button {
+            padding: 15px 30px;
+            font-size: 18px;
+            cursor: pointer;
+            color: #1a1a1a;
+            background-color: #00bfff;
+            border: none;
+            border-radius: 8px;
+            transition: background 0.3s, transform 0.3s;
+            box-shadow: 0px 5px 15px rgba(0, 191, 255, 0.4);
+            font-weight: bold;
+            margin-top: 10px;
+            display: none;
+        }
+        .withdraw-button:hover {
+            background-color: #0099cc;
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body>
@@ -206,6 +219,7 @@
     <div class="ad-container">
         <h1>Complete Reward Task</h1>
         <button class="reward-button" onclick="showRewardedAd()">Reward Task</button>
+        <button class="withdraw-button" id="withdrawButton" onclick="showWithdrawModal()">Withdraw</button>
     </div>
 
     <!-- Bottom Navigation Bar -->
@@ -224,125 +238,112 @@
         </div>
     </div>
 
+    <div class="modal" id="withdrawModal">
+        <div class="modal-content">
+            <h3>Enter Binance TRC20 Wallet Address</h3>
+            <input type="text" id="walletAddress" placeholder="Enter your TRC20 wallet address">
+            <button onclick="processWithdrawal()">Withdraw</button>
+        </div>
+    </div>
+
     <script>
-        let points = 0;
-        let balance = 0;
+            let rewardClicks = 0;
+            let points = 0;
+            let balance = 0;
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const savedName = localStorage.getItem('userName');
-            const savedNumber = localStorage.getItem('userNumber');
-            const userModal = document.getElementById('userModal');
-            
-            if (savedName && savedNumber) {
-                document.getElementById('userName').textContent = savedName;
-                document.getElementById('userNumber').textContent = savedNumber;
-            } else {
-                userModal.classList.add('active');
+            document.addEventListener('DOMContentLoaded', function() {
+                // Check if user data is stored in localStorage
+                if (!localStorage.getItem('userName') || !localStorage.getItem('userNumber')) {
+                    document.getElementById('userModal').classList.add('active');
+                } else {
+                    loadUserInfo();
+                }
+            });
+
+            function loadUserInfo() {
+                let userName = localStorage.getItem('userName');
+                let userNumber = localStorage.getItem('userNumber');
+                let userPoints = localStorage.getItem('userPoints') || 0;
+                let userBalance = localStorage.getItem('userBalance') || 0;
+
+                document.getElementById('userName').textContent = userName;
+                document.getElementById('userNumber').textContent = userNumber;
+                document.getElementById('userPoints').textContent = userPoints;
+                document.getElementById('userBalance').textContent = userBalance;
             }
 
-            // Display saved points and balance
-            points = parseInt(localStorage.getItem('userPoints') || '0');
-            balance = parseFloat(localStorage.getItem('userBalance') || '0.00');
-            updateBalance();
-        });
+            function saveUserInfo() {
+                let inputName = document.getElementById('inputName').value;
+                let inputNumber = document.getElementById('inputNumber').value;
 
-        function saveUserInfo() {
-            const name = document.getElementById('inputName').value;
-            const number = document.getElementById('inputNumber').value;
+                if (inputName && inputNumber) {
+                    localStorage.setItem('userName', inputName);
+                    localStorage.setItem('userNumber', inputNumber);
+                    localStorage.setItem('userPoints', 0);
+                    localStorage.setItem('userBalance', 0);
 
-            if (name && number) {
-                localStorage.setItem('userName', name);
-                localStorage.setItem('userNumber', number);
-                document.getElementById('userName').textContent = name;
-                document.getElementById('userNumber').textContent = number;
-                document.getElementById('userModal').classList.remove('active');
-            } else {
-                alert("Please enter both your name and number.");
+                    document.getElementById('userModal').classList.remove('active');
+                    loadUserInfo();
+                } else {
+                    alert("Please fill in both fields.");
+                }
             }
-        }
 
+            function showRewardedAd() {
+                rewardClicks++;
+                points += 10; // Simulate rewarding points after each click
+                localStorage.setItem('userPoints', points);
+                localStorage.setItem('userBalance', (points * 0.1).toFixed(2)); // Convert points to balance
 
-        // Reward ad function
-        function showRewardedAd() {
-            if (typeof show_8563381 === 'function') {
-                show_8563381().then(() => {
-                    // Increase points and balance on ad completion
-                    points += 10;  
-                    balance += 0.008;
+                document.getElementById('userPoints').textContent = points;
+                document.getElementById('userBalance').textContent = localStorage.getItem('userBalance');
+
+                // Show withdraw button after 5 clicks
+                if (rewardClicks >= 5) {
+                    document.getElementById('withdrawButton').style.display = 'block';
+                }
+
+                // Redirect to Monetag ad after clicking the reward task button
+                if (typeof show_8563381 === 'function') {
+                    show_8563381().then(() => {
+                        // After the ad is shown, you can proceed to handle rewards (points, balance, etc.)
+                        alert('Ad completed. You have earned your reward!');
+                    }).catch(error => {
+                        console.error('Error showing ad:', error);
+                        alert('Failed to show rewarded ad.');
+                    });
+                } else {
+                    alert('Monetag ad is not available.');
+                }
+            }
+
+            function showWithdrawModal() {
+                document.getElementById('withdrawModal').classList.add('active');
+            }
+
+            function processWithdrawal() {
+                let walletAddress = document.getElementById('walletAddress').value;
+
+                if (walletAddress) {
+                    alert(`Withdrawal request received. Sending to: ${walletAddress}`);
+                    document.getElementById('withdrawModal').classList.remove('active');
+
+                    // Reset points and balance after withdrawal
+                    points = 0;
+                    balance = 0;
                     localStorage.setItem('userPoints', points);
-                    localStorage.setItem('userBalance', balance.toFixed(2));
+                    localStorage.setItem('userBalance', balance);
+
                     document.getElementById('userPoints').textContent = points;
-                    document.getElementById('userBalance').textContent = balance.toFixed(2);
+                    document.getElementById('userBalance').textContent = balance;
 
-                    alert('You have completed the Reward Task and earned 10 points!');
-                }).catch(error => {
-                    alert('Failed to show rewarded ad.');
-                    console.error('Ad error:', error);
-                });
-            } else {
-                alert('Rewarded ad not available.');
+                    document.getElementById('withdrawButton').style.display = 'none'; // Hide withdraw button
+                } else {
+                    alert("Please enter a valid wallet address.");
+                }
             }
-        }
+        </script>
         
-        
-        
-        
-        function updateBalance() {
-            document.getElementById('userPoints').textContent = points;
-            document.getElementById('userBalance').textContent = balance.toFixed(2);
-
-            localStorage.setItem('userPoints', points);
-            localStorage.setItem('userBalance', balance.toFixed(2));
-        }
-        
-        
-        
-document.addEventListener("contextmenu", function(e) {
-        e.preventDefault();
-        alert("Right-click isn't allowed!");
-    });
-    
-
-
-    document.addEventListener("keydown", function(e) {
-        // F12 ব্লক করা
-        if (e.key === "F12") {
-            e.preventDefault();
-            alert("Developer Tools isn't allowed!");
-        }
-
-        // Ctrl + Shift + I ব্লক করা (Chrome/Edge Inspector shortcut)
-        if (e.ctrlKey && e.shiftKey && e.key === "I") {
-            e.preventDefault();
-            alert("Developer Tools isn't allowed!");
-        }
-
-        // Ctrl + Shift + J ব্লক করা (Chrome/Edge Console shortcut)
-        if (e.ctrlKey && e.shiftKey && e.key === "J") {
-            e.preventDefault();
-            alert("Developer Tools isn't allowed!");
-        }
-
-        // Ctrl + Shift + C ব্লক করা (Chrome/Edge/Firefox Inspector shortcut)
-        if (e.ctrlKey && e.shiftKey && e.key === "C") {
-            e.preventDefault();
-            alert("Developer Tools isn't allowed!");
-        }
-
-        // Ctrl + U ব্লক করা (View Page Source shortcut)
-        if (e.ctrlKey && e.key === "U") {
-            e.preventDefault();
-            alert("Viewing page source isn't allowed!");
-        }
-
-        // Ctrl + Shift + K ব্লক করা (Firefox Console shortcut)
-        if (e.ctrlKey && e.shiftKey && e.key === "K") {
-            e.preventDefault();
-            alert("Developer Tools isn't allowed!");
-        }
-    });
-
-    
-    </script>
-</body>
+          
+        </body>
 </html>
